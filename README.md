@@ -9,6 +9,6 @@ Students are expected to:
 Student Info
 =========================
 
-* Student Name: USTH ICT1
-* Student ID: Not-Vietnamese
+* Student Name: Trần Hải Nam    
+* Student ID: 23BI14325
 * Student Group ID: Not-for-now

@@ -1,7 +1,7 @@
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -33,20 +33,29 @@ public class Server {
 
     private static void handleClient(Socket socket, Path outDir) throws IOException {
         DataInputStream in = new DataInputStream(socket.getInputStream());
-        OutputStream out = socket.getOutputStream();
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
+        byte op = in.readByte();
+        if (op == 'U') {
+            handleUpload(in, out, outDir);
+        } else if (op == 'D') {
+            handleDownload(in, out, outDir);
+        } else {
+            System.out.println("[!] Unknown operation: " + (char) op);
+        }
+    }
+
+    private static void handleUpload(DataInputStream in, DataOutputStream out, Path outDir) throws IOException {
         int nameLength = in.readInt();
         long fileSize = in.readLong();
 
         byte[] nameBytes = in.readNBytes(nameLength);
         String rawName = new String(nameBytes, "UTF-8");
         String safeName = Paths.get(rawName).getFileName().toString();
-        Path destination = uniquePath(outDir, safeName);
+        Path destination = outDir.resolve(safeName);
 
         long remaining = fileSize;
         byte[] buffer = new byte[CHUNK_SIZE];
-        long start = System.nanoTime();
-
         try (BufferedOutputStream fileOut = new BufferedOutputStream(Files.newOutputStream(destination))) {
             while (remaining > 0) {
                 int toRead = (int) Math.min(buffer.length, remaining);
@@ -59,37 +68,37 @@ public class Server {
             }
         }
 
-        double durationSeconds = (System.nanoTime() - start) / 1_000_000_000.0;
-        double speedMiB = (fileSize / 1024.0 / 1024.0) / Math.max(durationSeconds, 1e-6);
-
-        System.out.printf("[+] Received '%s' (%d bytes) in %.2fs (%.2f MiB/s)%n",
-                destination.getFileName(), fileSize, durationSeconds, speedMiB);
+        System.out.printf("[+] Received '%s' (%d bytes)%n", destination.getFileName(), fileSize);
         out.write(("OK " + destination.getFileName() + " " + fileSize + " bytes\n").getBytes("UTF-8"));
         out.flush();
     }
 
-    private static Path uniquePath(Path dir, String name) throws IOException {
-        Path candidate = dir.resolve(name);
-        if (!Files.exists(candidate)) {
-            return candidate;
+    private static void handleDownload(DataInputStream in, DataOutputStream out, Path outDir) throws IOException {
+        int nameLength = in.readInt();
+        byte[] nameBytes = in.readNBytes(nameLength);
+        String rawName = new String(nameBytes, "UTF-8");
+        Path filePath = outDir.resolve(Paths.get(rawName).getFileName().toString());
+
+        if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+            out.writeByte(1); // not found
+            out.flush();
+            System.out.println("[!] Download requested but file not found: " + filePath);
+            return;
         }
-        String base;
-        String ext;
-        int dot = name.lastIndexOf('.');
-        if (dot > 0) {
-            base = name.substring(0, dot);
-            ext = name.substring(dot);
-        } else {
-            base = name;
-            ext = "";
-        }
-        int counter = 1;
-        while (true) {
-            Path alt = dir.resolve(base + "_" + counter + ext);
-            if (!Files.exists(alt)) {
-                return alt;
+
+        long size = Files.size(filePath);
+        out.writeByte(0); // ok
+        out.writeLong(size);
+
+        byte[] buffer = new byte[CHUNK_SIZE];
+        try (var fileIn = Files.newInputStream(filePath)) {
+            int read;
+            while ((read = fileIn.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
             }
-            counter++;
         }
+        out.flush();
+
+        System.out.printf("[+] Sent '%s' (%d bytes)%n", filePath.getFileName(), size);
     }
 }

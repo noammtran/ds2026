@@ -11,4 +11,4 @@ Student Info
 
 * Student Name: Trần Hải Nam    
 * Student ID: 23BI14325
-* Student Group ID: Not-for-now
+* Student Group ID: 3

@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 *.class
 rpc/README.md
+mpi/README.md

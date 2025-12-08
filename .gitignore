@@ -4,3 +4,4 @@ __pycache__/
 *.class
 rpc/README.md
 mpi/README.md
+mpi/mpj.jar

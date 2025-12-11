@@ -1,4 +1,6 @@
 
+package mpi;
+
 import mpi.MPI;
 
 import java.io.BufferedInputStream;
@@ -16,7 +18,8 @@ public class FileTransferMPI {
     private static final int CHUNK_SIZE = 64 * 1024;
 
     public static void main(String[] args) throws Exception {
-        MPI.Init(args);
+        // MPJ Express returns the application args after stripping its own flags.
+        String[] appArgs = MPI.Init(args);
 
         int rank = MPI.COMM_WORLD.Rank();
         int world = MPI.COMM_WORLD.Size();
@@ -34,7 +37,7 @@ public class FileTransferMPI {
             return;
         }
 
-        if (args.length < 1) {
+        if (appArgs.length < 1) {
             if (rank == 0) {
                 System.err.println("Usage: mpirun -np 2 java FileTransferMPI <input_file> [output_path_on_receiver]");
             }
@@ -43,9 +46,9 @@ public class FileTransferMPI {
         }
 
         if (rank == 0) {
-            runSender(args);
+            runSender(appArgs);
         } else {
-            runReceiver(args);
+            runReceiver(appArgs);
         }
 
         MPI.Finalize();

@@ -1,0 +1,4 @@
+MapReduce splits the input into many pieces.
+Each mapper processes part of the input.
+Each reducer aggregates results from mappers.
+

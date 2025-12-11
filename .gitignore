@@ -4,4 +4,8 @@ __pycache__/
 *.class
 rpc/README.md
 mpi/README.md
-mpi/mpj.jar
+mpi/mpj-v0_44
+mpi/run_log.txt
+mpi/input_mpi.bin
+mpi/output_mpi.bin
+LongestPath/sample/

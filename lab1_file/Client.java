@@ -1,6 +1,6 @@
 import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -132,7 +132,7 @@ public class Client {
     }
 
     private static void printUsage() {
-        System.err.println("Upload:   java Client upload <file_path> [host] [port] [remote_name]");
+        System.err.println("Upload: java Client upload <file_path> [host] [port] [remote_name]");
         System.err.println("Download: java Client download <remote_name> [host] [port] [output_path]");
         System.err.println("Default mode (no 'upload' word): first arg is file_path for upload.");
     }

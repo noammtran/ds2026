@@ -1,0 +1,4 @@
+Distributed systems are fun to study.
+Distributed systems can be tricky to debug.
+MapReduce is one way to process large data.
+

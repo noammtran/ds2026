@@ -1,0 +1,4 @@
+Cloud computing relies on distributed systems.
+File systems and MapReduce often run in the cloud.
+Word count is a classic MapReduce example.
+

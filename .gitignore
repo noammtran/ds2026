@@ -9,3 +9,4 @@ mpi/run_log.txt
 mpi/input_mpi.bin
 mpi/output_mpi.bin
 LongestPath/sample/
+.vscode/
